@@ -3,10 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import ActiveVisitors from '../components/ActiveVisitors'
+import EmployeeDirectory from '../components/EmployeeDirectory'
 import OddballLogo from '../components/OddballLogo'
 import { TEAL } from '../lib/theme'
 
-const TAB = { ACTIVE: 'active', HISTORY: 'history' }
+const TAB = { ACTIVE: 'active', HISTORY: 'history', DIRECTORY: 'directory' }
 
 export default function AdminPage() {
   const navigate = useNavigate()
@@ -14,6 +15,25 @@ export default function AdminPage() {
   const [history, setHistory] = useState([])
   const [historyDate, setHistoryDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   const [loadingHistory, setLoadingHistory] = useState(false)
+  const [signingOutAll, setSigningOutAll] = useState(false)
+  const [signOutAllResult, setSignOutAllResult] = useState(null)
+
+  const handleSignOutAll = async () => {
+    if (!window.confirm('Sign out all visitors who are still checked in? This cannot be undone.')) return
+    setSigningOutAll(true)
+    setSignOutAllResult(null)
+    const { data, error } = await supabase
+      .from('visitor_log')
+      .update({ time_out: new Date().toISOString() })
+      .is('time_out', null)
+      .select('id')
+    setSigningOutAll(false)
+    if (error) {
+      setSignOutAllResult({ ok: false, message: 'Something went wrong.' })
+    } else {
+      setSignOutAllResult({ ok: true, message: `${data.length} visitor${data.length !== 1 ? 's' : ''} signed out.` })
+    }
+  }
 
   useEffect(() => {
     if (sessionStorage.getItem('admin_auth') !== '1') navigate('/admin/login')
@@ -71,6 +91,9 @@ export default function AdminPage() {
           <TabButton teal={TEAL} active={tab === TAB.HISTORY} onClick={() => setTab(TAB.HISTORY)}>
             Visit History
           </TabButton>
+          <TabButton teal={TEAL} active={tab === TAB.DIRECTORY} onClick={() => setTab(TAB.DIRECTORY)}>
+            Employee Directory
+          </TabButton>
         </nav>
       </div>
 
@@ -79,12 +102,27 @@ export default function AdminPage() {
 
         {tab === TAB.ACTIVE && (
           <>
-            <p className="text-sm text-gray-400 mb-4">
-              Currently signed-in visitors · refreshes every 30 seconds
-            </p>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm text-gray-400">Currently signed-in visitors · refreshes every 30 seconds</p>
+              <button
+                onClick={handleSignOutAll}
+                disabled={signingOutAll}
+                className="text-sm px-4 py-2 rounded-lg font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                style={{ backgroundColor: '#e05050' }}
+              >
+                {signingOutAll ? 'Signing out...' : 'Sign Out All'}
+              </button>
+            </div>
+            {signOutAllResult && (
+              <div className={`mb-4 px-4 py-3 rounded-lg text-sm font-medium ${signOutAllResult.ok ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                {signOutAllResult.message}
+              </div>
+            )}
             <ActiveVisitors />
           </>
         )}
+
+        {tab === TAB.DIRECTORY && <EmployeeDirectory />}
 
         {tab === TAB.HISTORY && (
           <div>

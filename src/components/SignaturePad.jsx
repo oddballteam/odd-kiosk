@@ -34,14 +34,14 @@ const SignaturePad = forwardRef(function SignaturePad({ onChange }, ref) {
 
   return (
     <div className="space-y-2">
-      <div className="border-2 border-gray-200 rounded-xl overflow-hidden bg-white relative">
+      <div className="border-2 border-transparent rounded-xl overflow-hidden relative bg-white">
         <SignatureCanvas
           ref={sigPadRef}
           onEnd={handleEnd}
           canvasProps={{
             className: 'signature-canvas w-full',
-            height: 200,
-            style: { width: '100%', height: '200px' },
+            height: 110,
+            style: { width: '100%', height: '110px' },
           }}
           backgroundColor="white"
           penColor="#1e3a5f"

@@ -1,18 +1,22 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { TEAL } from '../lib/theme'
+import VirtualKeyboard from './VirtualKeyboard'
 
 export default function EmployeeSearch({ value, onChange }) {
   const [query, setQuery] = useState(value?.full_name || '')
   const [results, setResults] = useState([])
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [showKeyboard, setShowKeyboard] = useState(false)
+  const inputRef = useRef(null)
   const wrapperRef = useRef(null)
 
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
         setOpen(false)
+        setShowKeyboard(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -49,6 +53,7 @@ export default function EmployeeSearch({ value, onChange }) {
   const handleSelect = (employee) => {
     setQuery(employee.full_name)
     setOpen(false)
+    setShowKeyboard(false)
     onChange(employee)
   }
 
@@ -57,18 +62,35 @@ export default function EmployeeSearch({ value, onChange }) {
     if (value) onChange(null)
   }
 
+  const handleVirtualKey = (key) => {
+    if (value) onChange(null)
+    if (key === 'BACKSPACE') {
+      setQuery(q => q.slice(0, -1))
+    } else if (key === 'CLEAR') {
+      setQuery('')
+    } else {
+      setQuery(q => q + key)
+    }
+    inputRef.current?.focus()
+  }
+
   return (
-    <div ref={wrapperRef} className="relative">
+    <div ref={wrapperRef}>
       <div className="relative">
         <input
+          ref={inputRef}
           type="text"
           value={query}
           onChange={handleInputChange}
-          onFocus={() => query.length >= 1 && results.length > 0 && setOpen(true)}
           placeholder="Type a name to search..."
-          className="w-full px-4 py-4 text-lg border-2 border-gray-200 rounded-xl focus:outline-none transition-colors"
-          onFocus={e => e.target.style.borderColor = TEAL}
-          onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+          className="w-full px-4 py-4 text-lg border-2 border-transparent rounded-xl focus:outline-none transition-colors"
+          style={{ backgroundColor: '#f0ede7' }}
+          onFocus={e => {
+            e.target.style.borderColor = TEAL
+            setShowKeyboard(true)
+            if (query.length >= 1 && results.length > 0) setOpen(true)
+          }}
+          onBlur={e => e.target.style.borderColor = 'transparent'}
         />
         {loading && (
           <div className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -85,12 +107,12 @@ export default function EmployeeSearch({ value, onChange }) {
       </div>
 
       {open && results.length > 0 && (
-        <ul className="absolute z-50 w-full mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-xl max-h-96 overflow-y-auto">
+        <ul className="w-full mt-1 border-2 border-transparent rounded-xl shadow-xl max-h-52 overflow-y-auto" style={{ backgroundColor: '#f0ede7' }}>
           {results.map((emp) => (
             <li
               key={emp.id}
               onMouseDown={() => handleSelect(emp)}
-              className="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors border-b border-gray-100 last:border-0 hover:bg-gray-50"
+              className="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors border-b border-black/5 last:border-0 hover:brightness-95"
             >
               <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0" style={{ backgroundColor: TEAL }}>
                 {emp.full_name.split(' ').map(n => n[0]).slice(0, 2).join('')}
@@ -109,9 +131,13 @@ export default function EmployeeSearch({ value, onChange }) {
       )}
 
       {open && !loading && results.length === 0 && query.length >= 1 && (
-        <div className="absolute z-50 w-full mt-1 bg-white border-2 border-gray-200 rounded-xl shadow-xl px-4 py-3 text-gray-500">
+        <div className="w-full mt-1 rounded-xl shadow-xl px-4 py-3 text-gray-500" style={{ backgroundColor: '#f0ede7' }}>
           No employees found matching "{query}"
         </div>
+      )}
+
+      {showKeyboard && !value && (
+        <VirtualKeyboard onKey={handleVirtualKey} />
       )}
     </div>
   )
