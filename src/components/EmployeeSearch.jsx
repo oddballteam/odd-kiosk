@@ -36,7 +36,7 @@ export default function EmployeeSearch({ value, onChange }) {
         .from('employees')
         .select('id, full_name, title, department')
         .eq('active', true)
-        .ilike('full_name', `%${query}%`)
+        .ilike('full_name', `${query}%`)
         .order('full_name')
         .limit(20)
 
@@ -83,7 +83,7 @@ export default function EmployeeSearch({ value, onChange }) {
           value={query}
           onChange={handleInputChange}
           placeholder="Type a name to search..."
-          className="w-full px-4 py-4 text-lg border-2 border-transparent rounded-xl focus:outline-none transition-colors"
+          className="w-full px-5 py-5 text-xl xl:text-2xl border-2 border-transparent rounded-xl focus:outline-none transition-colors"
           style={{ backgroundColor: '#f0ede7' }}
           onFocus={e => {
             e.target.style.borderColor = TEAL
@@ -93,13 +93,13 @@ export default function EmployeeSearch({ value, onChange }) {
           onBlur={e => e.target.style.borderColor = 'transparent'}
         />
         {loading && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2">
-            <div className="w-5 h-5 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: TEAL, borderTopColor: 'transparent' }} />
+          <div className="absolute right-5 top-1/2 -translate-y-1/2">
+            <div className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: TEAL, borderTopColor: 'transparent' }} />
           </div>
         )}
         {value && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 text-green-500">
-            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <div className="absolute right-5 top-1/2 -translate-y-1/2 text-green-500">
+            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
           </div>
@@ -107,20 +107,20 @@ export default function EmployeeSearch({ value, onChange }) {
       </div>
 
       {open && results.length > 0 && (
-        <ul className="w-full mt-1 border-2 border-transparent rounded-xl shadow-xl max-h-52 overflow-y-auto" style={{ backgroundColor: '#f0ede7' }}>
+        <ul className="w-full mt-1 border-2 border-transparent rounded-xl shadow-xl max-h-64 overflow-y-auto" style={{ backgroundColor: '#f0ede7' }}>
           {results.map((emp) => (
             <li
               key={emp.id}
               onMouseDown={() => handleSelect(emp)}
-              className="flex items-center gap-3 px-4 py-3 cursor-pointer transition-colors border-b border-black/5 last:border-0 hover:brightness-95"
+              className="flex items-center gap-4 px-5 py-4 cursor-pointer transition-colors border-b border-black/5 last:border-0 hover:brightness-95"
             >
-              <div className="w-10 h-10 rounded-full flex items-center justify-center text-white font-semibold text-sm flex-shrink-0" style={{ backgroundColor: TEAL }}>
+              <div className="w-12 h-12 rounded-full flex items-center justify-center text-white font-semibold text-base flex-shrink-0" style={{ backgroundColor: TEAL }}>
                 {emp.full_name.split(' ').map(n => n[0]).slice(0, 2).join('')}
               </div>
               <div>
-                <p className="font-semibold text-gray-900">{emp.full_name}</p>
+                <p className="font-semibold text-gray-900 text-lg xl:text-xl">{emp.full_name}</p>
                 {(emp.title || emp.department) && (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-base text-gray-500">
                     {[emp.title, emp.department].filter(Boolean).join(' · ')}
                   </p>
                 )}
@@ -131,7 +131,7 @@ export default function EmployeeSearch({ value, onChange }) {
       )}
 
       {open && !loading && results.length === 0 && query.length >= 1 && (
-        <div className="w-full mt-1 rounded-xl shadow-xl px-4 py-3 text-gray-500" style={{ backgroundColor: '#f0ede7' }}>
+        <div className="w-full mt-1 rounded-xl shadow-xl px-5 py-4 text-gray-500 text-lg" style={{ backgroundColor: '#f0ede7' }}>
           No employees found matching "{query}"
         </div>
       )}

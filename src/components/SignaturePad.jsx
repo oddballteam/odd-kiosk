@@ -1,4 +1,4 @@
-import { useRef, forwardRef, useImperativeHandle, useEffect, useState } from 'react'
+import { useRef, forwardRef, useImperativeHandle, useState } from 'react'
 import SignatureCanvas from 'react-signature-canvas'
 
 const SignaturePad = forwardRef(function SignaturePad({ onChange }, ref) {
@@ -40,15 +40,15 @@ const SignaturePad = forwardRef(function SignaturePad({ onChange }, ref) {
           onEnd={handleEnd}
           canvasProps={{
             className: 'signature-canvas w-full',
-            height: 110,
-            style: { width: '100%', height: '110px' },
+            height: 150,
+            style: { width: '100%', height: '150px' },
           }}
           backgroundColor="white"
           penColor="#1e3a5f"
         />
         {isEmpty && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <p className="text-gray-300 text-lg select-none">Sign here</p>
+            <p className="text-gray-300 text-xl select-none">Sign here</p>
           </div>
         )}
       </div>
@@ -57,7 +57,7 @@ const SignaturePad = forwardRef(function SignaturePad({ onChange }, ref) {
         <button
           type="button"
           onClick={handleClear}
-          className="text-sm text-gray-400 hover:text-red-500 transition-colors px-2"
+          className="text-base text-gray-400 hover:text-red-500 transition-colors px-2"
         >
           Clear signature
         </button>
