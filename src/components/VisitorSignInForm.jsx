@@ -1,28 +1,52 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import EmployeeSearch from './EmployeeSearch'
 import SignaturePad from './SignaturePad'
 import OddballLogo from './OddballLogo'
-import CompanyInput from './CompanyInput'
+import VirtualKeyboard from './VirtualKeyboard'
 import { TEAL } from '../lib/theme'
 
-function Field({ label, required, children }) {
+function Field({ label, required, error, children }) {
   return (
     <div>
       <label className="block text-base xl:text-lg font-semibold text-gray-600 mb-1.5">
-        {label}{required && <span className="text-red-400 ml-0.5">*</span>}
+        {label}
       </label>
       {children}
+      {error && <p className="mt-1.5 text-sm font-medium text-red-500">{error}</p>}
     </div>
   )
 }
 
-const inputClass = 'w-full px-5 py-4 text-lg xl:text-xl border-2 border-transparent rounded-xl focus:outline-none transition-colors bg-white'
+const inputClass = 'w-full px-5 py-4 text-lg xl:text-xl border-2 border-transparent rounded-xl focus:outline-none transition-colors bg-white text-[#4a9e96]'
 
 export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
+  const [showErrors, setShowErrors] = useState(false)
+  const [activeField, setActiveField] = useState(null)
+
+  const nameRef = useRef(null)
+  const companyRef = useRef(null)
+  const reasonRef = useRef(null)
+
+  const fieldOrder = ['visitor_name', 'visitor_company', 'reason_for_visit']
+  const fieldRefs = { visitor_name: nameRef, visitor_company: companyRef, reason_for_visit: reasonRef }
+
+  const handleVirtualKey = (key) => {
+    if (!activeField) return
+    if (key === 'ENTER') {
+      const next = fieldOrder[fieldOrder.indexOf(activeField) + 1]
+      if (next) fieldRefs[next].current?.focus()
+      else setActiveField(null)
+      return
+    }
+    const current = form[activeField]
+    if (key === 'BACKSPACE') update(activeField, current.slice(0, -1))
+    else if (key === 'CLEAR') update(activeField, '')
+    else update(activeField, current + key)
+  }
 
   const [form, setForm] = useState({
     host: null,
@@ -34,14 +58,17 @@ export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
 
   const update = (field, val) => setForm(f => ({ ...f, [field]: val }))
 
-  const canSubmit =
-    form.host &&
-    form.visitor_name.trim() &&
-    form.visitor_company.trim() &&
-    form.reason_for_visit.trim() &&
-    form.signature
+  const fieldErrors = {
+    host: !form.host ? 'Please select who you are here to see.' : null,
+    visitor_name: !form.visitor_name.trim() ? 'Full name is required.' : null,
+    visitor_company: !form.visitor_company.trim() ? 'Company is required.' : null,
+    reason_for_visit: !form.reason_for_visit.trim() ? 'Reason for visit is required.' : null,
+    signature: !form.signature ? 'Signature is required.' : null,
+  }
+  const hasErrors = Object.values(fieldErrors).some(Boolean)
 
   const handleSubmit = async () => {
+    if (hasErrors) { setShowErrors(true); return }
     setSubmitting(true)
     setError(null)
 
@@ -80,32 +107,17 @@ export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
 
       {/* ── Teal side ── */}
       <div className="flex-[2] lg:flex-1 flex flex-col px-10 py-8 text-white" style={{ backgroundColor: TEAL }}>
-        {/* Header */}
         <div className="flex items-center gap-4 mb-8">
           <span className="font-semibold tracking-wide text-2xl xl:text-3xl">Oddball Visitor Check-In</span>
         </div>
 
-        {/* Who are you visiting */}
-        <h2 className="text-3xl xl:text-4xl font-light mb-5">Who are you here to see?</h2>
+        <h2 className="text-3xl xl:text-4xl font-bold mb-5">Who are you here to see?</h2>
         <EmployeeSearch value={form.host} onChange={emp => update('host', emp)} />
-
-        {/* Selected employee card */}
-        {form.host && (
-          <div className="mt-5 rounded-xl p-5 flex items-center gap-4 bg-white/20">
-            <div className="w-14 h-14 rounded-full flex items-center justify-center font-bold flex-shrink-0 text-lg bg-white" style={{ color: TEAL }}>
-              {form.host.full_name.split(' ').map(n => n[0]).slice(0, 2).join('')}
-            </div>
-            <div>
-              <p className="font-semibold text-lg xl:text-xl">{form.host.full_name}</p>
-              {(form.host.title || form.host.department) && (
-                <p className="text-base text-white/70">{[form.host.title, form.host.department].filter(Boolean).join(' · ')}</p>
-              )}
-            </div>
-          </div>
+        {showErrors && fieldErrors.host && (
+          <p className="mt-1.5 inline-block text-sm font-medium text-red-500 bg-white rounded-md px-2 py-0.5">{fieldErrors.host}</p>
         )}
 
-        {/* Spacer when no host selected */}
-        {!form.host && <div className="flex-1" />}
+        <div className="flex-1" />
 
         {/* Clock at bottom */}
         {clock && (
@@ -117,54 +129,61 @@ export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
       </div>
 
       {/* ── Cream side ── */}
-      <div className="flex-[3] lg:flex-1 flex flex-col px-10 py-6 lg:py-8" style={{ backgroundColor: '#f0ede7' }}>
+      <div className="flex-[3] lg:flex-1 flex flex-col px-10 py-6 lg:py-8 overflow-y-auto" style={{ backgroundColor: '#f0ede7' }}>
         <h2 className="text-2xl xl:text-3xl font-bold text-gray-800 mb-5">About you</h2>
 
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
-              <Field label="Full Name" required>
+              <Field label="Full Name" required error={showErrors ? fieldErrors.visitor_name : null}>
                 <input
+                  ref={nameRef}
                   type="text"
                   value={form.visitor_name}
                   onChange={e => update('visitor_name', e.target.value)}
                   placeholder="Jane Smith"
                   className={inputClass}
-                  onFocus={focusTeal}
-                  onBlur={blurClear}
+                  onFocus={e => { focusTeal(e); setActiveField('visitor_name') }}
+                  onBlur={e => { blurClear(e); setActiveField(null) }}
                 />
               </Field>
+              {activeField === 'visitor_name' && <VirtualKeyboard onKey={handleVirtualKey} />}
             </div>
 
             <div className="col-span-2">
-              <Field label="Company" required>
-                <CompanyInput
+              <Field label="Company" required error={showErrors ? fieldErrors.visitor_company : null}>
+                <input
+                  ref={companyRef}
+                  type="text"
                   value={form.visitor_company}
-                  onChange={val => update('visitor_company', val)}
+                  onChange={e => update('visitor_company', e.target.value)}
+                  placeholder="Acme Corp"
                   className={inputClass}
-                  style={{ backgroundColor: 'white' }}
-                  onFocus={focusTeal}
-                  onBlur={blurClear}
+                  onFocus={e => { focusTeal(e); setActiveField('visitor_company') }}
+                  onBlur={e => { blurClear(e); setActiveField(null) }}
                 />
               </Field>
+              {activeField === 'visitor_company' && <VirtualKeyboard onKey={handleVirtualKey} />}
             </div>
 
             <div className="col-span-2">
-              <Field label="Reason for Visit" required>
+              <Field label="Reason for Visit" required error={showErrors ? fieldErrors.reason_for_visit : null}>
                 <textarea
+                  ref={reasonRef}
                   value={form.reason_for_visit}
                   onChange={e => update('reason_for_visit', e.target.value)}
                   placeholder="e.g. Sales meeting, Job interview, Delivery, etc."
                   rows={2}
                   className={`${inputClass} resize-none`}
-                  onFocus={focusTeal}
-                  onBlur={blurClear}
+                  onFocus={e => { focusTeal(e); setActiveField('reason_for_visit') }}
+                  onBlur={e => { blurClear(e); setActiveField(null) }}
                 />
               </Field>
+              {activeField === 'reason_for_visit' && <VirtualKeyboard onKey={handleVirtualKey} />}
             </div>
 
             <div className="col-span-2">
-              <Field label="Signature" required>
+              <Field label="Signature" required error={showErrors ? fieldErrors.signature : null}>
                 <SignaturePad onChange={dataUrl => update('signature', dataUrl)} />
               </Field>
             </div>
@@ -188,7 +207,7 @@ export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
             <button
               type="button"
               onClick={handleSubmit}
-              disabled={!canSubmit || submitting}
+              disabled={submitting}
               className="flex-[2] py-4 xl:py-5 px-6 text-lg xl:text-xl font-semibold text-white rounded-xl transition-opacity hover:opacity-90 disabled:opacity-40 flex items-center justify-center gap-2"
               style={{ backgroundColor: TEAL }}
             >

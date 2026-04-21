@@ -30,6 +30,8 @@ export default function EmployeeSearch({ value, onChange }) {
       return
     }
 
+    if (value && query === value.full_name) return
+
     const timer = setTimeout(async () => {
       setLoading(true)
       const { data, error } = await supabase
@@ -83,8 +85,8 @@ export default function EmployeeSearch({ value, onChange }) {
           value={query}
           onChange={handleInputChange}
           placeholder="Type a name to search..."
-          className="w-full px-5 py-5 text-xl xl:text-2xl border-2 border-transparent rounded-xl focus:outline-none transition-colors"
-          style={{ backgroundColor: '#f0ede7' }}
+          className="w-full px-5 py-5 text-xl xl:text-2xl font-semibold border-2 border-transparent rounded-xl focus:outline-none transition-colors text-[#4a9e96] placeholder:text-gray-400 placeholder:font-normal"
+          style={{ backgroundColor: 'white' }}
           onFocus={e => {
             e.target.style.borderColor = TEAL
             setShowKeyboard(true)
@@ -98,11 +100,20 @@ export default function EmployeeSearch({ value, onChange }) {
           </div>
         )}
         {value && (
-          <div className="absolute right-5 top-1/2 -translate-y-1/2 text-green-500">
-            <svg className="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+          <button
+            type="button"
+            onMouseDown={e => {
+              e.preventDefault()
+              setQuery('')
+              onChange(null)
+              inputRef.current?.focus()
+            }}
+            className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+          >
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
             </svg>
-          </div>
+          </button>
         )}
       </div>
 
