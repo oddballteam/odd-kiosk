@@ -38,7 +38,7 @@ export default function EmployeeSearch({ value, onChange }) {
         .from('employees')
         .select('id, full_name, title, department')
         .eq('active', true)
-        .ilike('full_name', `${query}%`)
+        .ilike('full_name', `%${query}%`)
         .order('full_name')
         .limit(20)
 

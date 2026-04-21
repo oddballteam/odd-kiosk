@@ -103,7 +103,7 @@ export default function KioskPage() {
         {/* Cream action area */}
         <div className="flex-[3] lg:flex-1 flex flex-col items-center justify-center px-12 py-10" style={{ backgroundColor: '#f0ede7' }}>
           <div className="relative w-full max-w-lg xl:max-w-xl">
-            <div className="rounded-2xl shadow px-12 pt-12 pb-10 text-center" style={{ backgroundColor: '#f0ede7' }}>
+            <div className="px-12 pt-12 pb-10 text-center">
               <p className="font-bold text-gray-900 text-xl xl:text-2xl">Check-in takes about 60 seconds</p>
               <p className="mt-3 text-base xl:text-lg text-gray-500 leading-relaxed">
                 Your information is kept confidential and used<br />only for building security purposes.
