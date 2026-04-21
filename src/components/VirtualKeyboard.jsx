@@ -55,12 +55,17 @@ export default function VirtualKeyboard({ onKey }) {
         </button>
       </div>
 
-      {/* Bottom row — Space + Clear */}
+      {/* Bottom row — Space + Enter + Clear */}
       <div className="flex gap-2 justify-center pt-1">
         <button type="button" onMouseDown={e => press(e, ' ')}
           className={keyClass}
-          style={{ width: `calc((100% - ${9 * GAP}px) / 10 * 6 + ${5 * GAP}px)`, backgroundColor: TEAL }}>
+          style={{ width: `calc((100% - ${9 * GAP}px) / 10 * 4 + ${3 * GAP}px)`, backgroundColor: TEAL }}>
           SPACE
+        </button>
+        <button type="button" onMouseDown={e => press(e, 'ENTER')}
+          className={keyClass}
+          style={{ width: `calc((100% - ${9 * GAP}px) / 10 * 2 + ${GAP}px)`, backgroundColor: '#4caf50' }}>
+          Enter
         </button>
         <button type="button" onMouseDown={e => press(e, 'CLEAR')}
           className={keyClass}

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import VisitorSignInForm from '../components/VisitorSignInForm'
@@ -14,6 +15,7 @@ const VIEW = {
 }
 
 export default function KioskPage() {
+  const navigate = useNavigate()
   const [view, setView] = useState(VIEW.HOME)
   const [clock, setClock] = useState(new Date())
   const [successInfo, setSuccessInfo] = useState(null)
@@ -86,9 +88,14 @@ export default function KioskPage() {
             <p className="mt-3 text-lg xl:text-xl opacity-80">Please sign in to let us know you're here.</p>
           </div>
 
-          {/* Clock */}
+          {/* Clock / Admin portal button */}
           <div className="mt-auto pt-6 flex items-end justify-between">
-            <p className="text-white/50 text-lg xl:text-xl tabular-nums font-light">{format(clock, 'h:mm a')}</p>
+            <button
+              onClick={() => navigate('/admin/login')}
+              className="text-white/50 text-lg xl:text-xl tabular-nums font-light hover:text-white/80 transition-colors"
+            >
+              {format(clock, 'h:mm a')}
+            </button>
             <p className="text-white/50 text-lg xl:text-xl tabular-nums">{format(clock, 'EEEE, MMMM d, yyyy')}</p>
           </div>
         </div>
@@ -111,15 +118,15 @@ export default function KioskPage() {
             </button>
           </div>
 
-          <p className="mt-28 xl:mt-32 text-base xl:text-lg text-gray-400">
-            Already signed in today?{' '}
+          <div className="mt-28 xl:mt-32 w-full max-w-lg xl:max-w-xl flex justify-center">
             <button
               onClick={() => setView(VIEW.SIGN_OUT)}
-              className="text-gray-500 hover:text-gray-800 transition-colors"
+              className="w-5/6 py-5 xl:py-6 rounded-full font-semibold text-xl xl:text-2xl border-2 hover:opacity-80 active:scale-[0.98] transition-all whitespace-nowrap"
+              style={{ borderColor: TEAL, color: TEAL }}
             >
-              View your record
+              Begin Check-Out →
             </button>
-          </p>
+          </div>
         </div>
       </div>
     )
@@ -151,9 +158,14 @@ export default function KioskPage() {
           <p className="text-white/60 text-base xl:text-lg">Showing everyone currently signed in today.</p>
           <div className="flex-1" />
 
-          {/* Clock */}
+          {/* Clock / Admin portal button */}
           <div className="mt-auto pt-6 hidden lg:flex items-end justify-between">
-            <p className="text-white/50 text-lg xl:text-xl tabular-nums font-light">{format(clock, 'h:mm a')}</p>
+            <button
+              onClick={() => navigate('/admin/login')}
+              className="text-white/50 text-lg xl:text-xl tabular-nums font-light hover:text-white/80 transition-colors"
+            >
+              {format(clock, 'h:mm a')}
+            </button>
             <p className="text-white/50 text-lg xl:text-xl tabular-nums">{format(clock, 'EEEE, MMMM d, yyyy')}</p>
           </div>
         </div>

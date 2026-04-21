@@ -2,11 +2,13 @@ import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { TEAL } from '../lib/theme'
 
-export default function CompanyInput({ value, onChange, className, style, onFocus, onBlur }) {
+export default function CompanyInput({ value, onChange, className, style, onFocus, onBlur, inputRef }) {
   const [query, setQuery] = useState(value || '')
   const [suggestions, setSuggestions] = useState([])
   const [open, setOpen] = useState(false)
   const wrapperRef = useRef(null)
+
+  useEffect(() => { setQuery(value || '') }, [value])
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -56,6 +58,7 @@ export default function CompanyInput({ value, onChange, className, style, onFocu
   return (
     <div ref={wrapperRef} className="relative">
       <input
+        ref={inputRef}
         type="text"
         value={query}
         onChange={handleChange}
