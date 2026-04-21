@@ -19,7 +19,7 @@ function Field({ label, required, error, children }) {
   )
 }
 
-const inputClass = 'w-full px-5 py-4 text-lg xl:text-xl border-2 border-transparent rounded-xl focus:outline-none transition-colors bg-white text-[#4a9e96]'
+const inputClass = 'w-full px-5 py-4 text-xl xl:text-2xl font-semibold border-2 border-transparent rounded-xl focus:outline-none transition-colors bg-white text-[#4a9e96]'
 
 export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
   const [submitting, setSubmitting] = useState(false)

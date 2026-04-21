@@ -59,6 +59,8 @@ export default function EmployeeSearch({ value, onChange }) {
     onChange(employee)
   }
 
+
+
   const handleInputChange = (e) => {
     setQuery(e.target.value)
     if (value) onChange(null)
@@ -92,6 +94,7 @@ export default function EmployeeSearch({ value, onChange }) {
             setShowKeyboard(true)
             if (query.length >= 1 && results.length > 0) setOpen(true)
           }}
+          onClick={() => setShowKeyboard(true)}
           onBlur={e => e.target.style.borderColor = 'transparent'}
         />
         {loading && (
@@ -106,6 +109,7 @@ export default function EmployeeSearch({ value, onChange }) {
               e.preventDefault()
               setQuery('')
               onChange(null)
+              setShowKeyboard(true)
               inputRef.current?.focus()
             }}
             className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
@@ -147,7 +151,7 @@ export default function EmployeeSearch({ value, onChange }) {
         </div>
       )}
 
-      {showKeyboard && !value && (
+      {showKeyboard && (
         <VirtualKeyboard onKey={handleVirtualKey} />
       )}
     </div>
