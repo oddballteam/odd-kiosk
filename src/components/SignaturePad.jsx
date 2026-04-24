@@ -34,7 +34,7 @@ const SignaturePad = forwardRef(function SignaturePad({ onChange }, ref) {
 
   return (
     <div className="space-y-2">
-      <div className="border-2 border-transparent rounded-xl overflow-hidden relative bg-white">
+      <div className="border-2 border-transparent rounded-xl overflow-hidden relative bg-gray-100">
         <SignatureCanvas
           ref={sigPadRef}
           onEnd={handleEnd}
@@ -43,7 +43,7 @@ const SignaturePad = forwardRef(function SignaturePad({ onChange }, ref) {
             height: 150,
             style: { width: '100%', height: '150px' },
           }}
-          backgroundColor="white"
+          backgroundColor="#f3f4f6"
           penColor="#1e3a5f"
         />
         {isEmpty && (
@@ -52,12 +52,11 @@ const SignaturePad = forwardRef(function SignaturePad({ onChange }, ref) {
           </div>
         )}
       </div>
-      <div className="flex items-center justify-between">
-        <div className="h-px flex-1 bg-gray-200 mx-2" />
+      <div className="flex justify-end">
         <button
           type="button"
           onClick={handleClear}
-          className="text-base text-gray-400 hover:text-red-500 transition-colors px-2"
+          className="px-5 py-2 rounded-xl text-base font-semibold text-white bg-gray-400 hover:bg-red-400 transition-colors"
         >
           Clear signature
         </button>

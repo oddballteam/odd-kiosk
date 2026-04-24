@@ -88,7 +88,7 @@ export default function EmployeeSearch({ value, onChange }) {
           onChange={handleInputChange}
           placeholder="Type a name to search..."
           className="w-full px-5 py-5 text-xl xl:text-2xl font-semibold border-2 border-transparent rounded-xl focus:outline-none transition-colors text-[#4a9e96] placeholder:text-gray-400 placeholder:font-normal"
-          style={{ backgroundColor: 'white' }}
+          style={{ backgroundColor: '#f3f4f6' }}
           onFocus={e => {
             e.target.style.borderColor = TEAL
             setShowKeyboard(true)
@@ -122,7 +122,7 @@ export default function EmployeeSearch({ value, onChange }) {
       </div>
 
       {open && results.length > 0 && (
-        <ul className="w-full mt-1 border-2 border-transparent rounded-xl shadow-xl max-h-64 overflow-y-auto" style={{ backgroundColor: '#f0ede7' }}>
+        <ul className="w-full mt-1 border-2 border-transparent rounded-xl shadow-xl max-h-64 overflow-y-auto" style={{ backgroundColor: '#ffffff' }}>
           {results.map((emp) => (
             <li
               key={emp.id}
@@ -146,7 +146,7 @@ export default function EmployeeSearch({ value, onChange }) {
       )}
 
       {open && !loading && results.length === 0 && query.length >= 1 && (
-        <div className="w-full mt-1 rounded-xl shadow-xl px-5 py-4 text-gray-500 text-lg" style={{ backgroundColor: '#f0ede7' }}>
+        <div className="w-full mt-1 rounded-xl shadow-xl px-5 py-4 text-gray-500 text-lg" style={{ backgroundColor: '#ffffff' }}>
           No employees found matching "{query}"
         </div>
       )}

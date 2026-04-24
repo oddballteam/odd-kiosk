@@ -100,8 +100,8 @@ export default function KioskPage() {
           </div>
         </div>
 
-        {/* Cream action area */}
-        <div className="flex-[3] lg:flex-1 flex flex-col items-center justify-center px-12 py-10" style={{ backgroundColor: '#f0ede7' }}>
+        {/* White action area */}
+        <div className="flex-[3] lg:flex-1 flex flex-col items-center justify-center px-12 py-10" style={{ backgroundColor: '#ffffff' }}>
           <div className="relative w-full max-w-lg xl:max-w-xl">
             <div className="px-12 pt-12 pb-10 text-center">
               <p className="font-bold text-gray-900 text-xl xl:text-2xl">Check-in takes about 60 seconds</p>
@@ -171,7 +171,7 @@ export default function KioskPage() {
         </div>
 
         {/* Cream side */}
-        <div className="flex-[3] lg:flex-1 flex flex-col px-10 py-8 overflow-y-auto" style={{ backgroundColor: '#f0ede7' }}>
+        <div className="flex-[3] lg:flex-1 flex flex-col px-10 py-8 overflow-y-auto" style={{ backgroundColor: '#ffffff' }}>
           {loadingVisitors ? (
             <div className="flex-1 flex items-center justify-center">
               <div className="w-10 h-10 border-2 border-t-transparent rounded-full animate-spin" style={{ borderColor: TEAL, borderTopColor: 'transparent' }} />
@@ -189,7 +189,7 @@ export default function KioskPage() {
                     onClick={() => handleSignOut(vis)}
                     disabled={signingOut === vis.id}
                     className="w-full flex items-center justify-between gap-6 rounded-xl px-7 py-5 text-left transition-opacity hover:opacity-80 disabled:opacity-50"
-                    style={{ backgroundColor: '#e8e4de' }}
+                    style={{ backgroundColor: '#f3f4f6' }}
                   >
                     <div>
                       <p className="font-semibold text-gray-900 text-xl xl:text-2xl">{vis.visitor_name}</p>
