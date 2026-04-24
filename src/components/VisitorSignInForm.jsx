@@ -19,7 +19,7 @@ function Field({ label, required, error, children }) {
   )
 }
 
-const inputClass = 'w-full px-5 py-4 text-xl xl:text-2xl font-semibold border-2 border-transparent rounded-xl focus:outline-none transition-colors bg-white text-[#4a9e96]'
+const inputClass = 'w-full px-5 py-4 text-xl xl:text-2xl font-semibold border-2 border-transparent rounded-xl focus:outline-none transition-colors bg-gray-100 text-[#00a187]'
 
 export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
   const [submitting, setSubmitting] = useState(false)
@@ -129,10 +129,10 @@ export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
       </div>
 
       {/* ── Cream side ── */}
-      <div className="flex-[3] lg:flex-1 flex flex-col px-10 py-6 lg:py-8 overflow-y-auto" style={{ backgroundColor: '#f0ede7' }}>
+      <div className="flex-[3] lg:flex-1 flex flex-col px-10 pt-6 lg:pt-8 overflow-hidden" style={{ backgroundColor: '#ffffff' }}>
         <h2 className="text-2xl xl:text-3xl font-bold text-gray-800 mb-5">About you</h2>
 
-        <div className="flex flex-col gap-4">
+        <div className="flex-1 overflow-y-auto flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="col-span-2">
               <Field label="Full Name" required error={showErrors ? fieldErrors.visitor_name : null}>
@@ -195,30 +195,31 @@ export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
             </div>
           )}
 
-          {/* Buttons */}
-          <div className="flex gap-4 mt-4 pt-4 border-t border-gray-200">
-            <button
-              type="button"
-              onClick={onCancel}
-              className="flex-1 py-4 xl:py-5 px-6 text-lg xl:text-xl font-semibold rounded-xl transition-colors text-gray-500 bg-white hover:bg-gray-100"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={submitting}
-              className="flex-[2] py-4 xl:py-5 px-6 text-lg xl:text-xl font-semibold text-white rounded-xl transition-opacity hover:opacity-90 disabled:opacity-40 flex items-center justify-center gap-2"
-              style={{ backgroundColor: TEAL }}
-            >
-              {submitting ? (
-                <>
-                  <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Signing in...
-                </>
-              ) : 'Complete Sign-In'}
-            </button>
-          </div>
+        </div>
+
+        {/* Sticky buttons */}
+        <div className="flex gap-4 py-4 border-t border-gray-100 bg-white">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 py-4 xl:py-5 px-6 text-lg xl:text-xl font-semibold rounded-xl transition-colors text-gray-500 bg-gray-100 hover:bg-gray-200"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="flex-[2] py-4 xl:py-5 px-6 text-lg xl:text-xl font-semibold text-white rounded-xl transition-opacity hover:opacity-90 disabled:opacity-40 flex items-center justify-center gap-2"
+            style={{ backgroundColor: TEAL }}
+          >
+            {submitting ? (
+              <>
+                <div className="w-6 h-6 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Signing in...
+              </>
+            ) : 'Complete Sign-In'}
+          </button>
         </div>
       </div>
     </div>

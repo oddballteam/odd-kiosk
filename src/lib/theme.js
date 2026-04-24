@@ -1,1 +1,1 @@
-export const TEAL = '#3d9e8c'
+export const TEAL = '#00a187'
