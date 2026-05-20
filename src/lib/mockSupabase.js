@@ -54,6 +54,16 @@ class MockQueryBuilder {
     return this
   }
 
+  gte(field, value) {
+    this._filters.push({ type: 'gte', field, value })
+    return this
+  }
+
+  lte(field, value) {
+    this._filters.push({ type: 'lte', field, value })
+    return this
+  }
+
   order(field, opts = {}) {
     this._orderField = field
     this._orderAsc = opts.ascending !== false
@@ -132,6 +142,12 @@ class MockQueryBuilder {
           } else {
             if (row[f.field] !== f.value) return false
           }
+          break
+        case 'gte':
+          if (row[f.field] < f.value) return false
+          break
+        case 'lte':
+          if (row[f.field] > f.value) return false
           break
         case 'ilike': {
           // Convert SQL % wildcards to regex .*
