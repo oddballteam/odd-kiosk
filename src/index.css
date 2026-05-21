@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* Prevent text selection on kiosk touch targets */
+.kiosk-no-select {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Signature canvas wrapper */
+.signature-canvas {
+  touch-action: none;
+}
