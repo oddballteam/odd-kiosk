@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 import { TEAL } from '../lib/theme'
-import VirtualKeyboard from './VirtualKeyboard'
 
 export default function EmployeeSearch({ value, onChange }) {
   const [query, setQuery] = useState(value?.full_name || '')
   const [results, setResults] = useState([])
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
-  const [showKeyboard, setShowKeyboard] = useState(false)
   const inputRef = useRef(null)
   const wrapperRef = useRef(null)
 
@@ -16,7 +14,6 @@ export default function EmployeeSearch({ value, onChange }) {
     const handleClickOutside = (e) => {
       if (wrapperRef.current && !wrapperRef.current.contains(e.target)) {
         setOpen(false)
-        setShowKeyboard(false)
       }
     }
     document.addEventListener('mousedown', handleClickOutside)
@@ -55,27 +52,12 @@ export default function EmployeeSearch({ value, onChange }) {
   const handleSelect = (employee) => {
     setQuery(employee.full_name)
     setOpen(false)
-    setShowKeyboard(false)
     onChange(employee)
   }
-
-
 
   const handleInputChange = (e) => {
     setQuery(e.target.value)
     if (value) onChange(null)
-  }
-
-  const handleVirtualKey = (key) => {
-    if (value) onChange(null)
-    if (key === 'BACKSPACE') {
-      setQuery(q => q.slice(0, -1))
-    } else if (key === 'CLEAR') {
-      setQuery('')
-    } else {
-      setQuery(q => q + key)
-    }
-    inputRef.current?.focus()
   }
 
   return (
@@ -86,15 +68,13 @@ export default function EmployeeSearch({ value, onChange }) {
           type="text"
           value={query}
           onChange={handleInputChange}
-          placeholder="Type a name to search..."
+          placeholder="Enter a person's name to search..."
           className="w-full px-5 py-5 text-xl xl:text-2xl font-semibold border-2 border-transparent rounded-xl focus:outline-none transition-colors text-[#4a9e96] placeholder:text-gray-400 placeholder:font-normal"
-          style={{ backgroundColor: '#f3f4f6' }}
+          style={{ backgroundColor: '#ffffff' }}
           onFocus={e => {
             e.target.style.borderColor = TEAL
-            setShowKeyboard(true)
             if (query.length >= 1 && results.length > 0) setOpen(true)
           }}
-          onClick={() => setShowKeyboard(true)}
           onBlur={e => e.target.style.borderColor = 'transparent'}
         />
         {loading && (
@@ -109,7 +89,6 @@ export default function EmployeeSearch({ value, onChange }) {
               e.preventDefault()
               setQuery('')
               onChange(null)
-              setShowKeyboard(true)
               inputRef.current?.focus()
             }}
             className="absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
@@ -149,10 +128,6 @@ export default function EmployeeSearch({ value, onChange }) {
         <div className="w-full mt-1 rounded-xl shadow-xl px-5 py-4 text-gray-500 text-lg" style={{ backgroundColor: '#ffffff' }}>
           No employees found matching "{query}"
         </div>
-      )}
-
-      {showKeyboard && (
-        <VirtualKeyboard onKey={handleVirtualKey} />
       )}
     </div>
   )

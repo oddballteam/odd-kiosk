@@ -12,6 +12,7 @@ export default function EmployeeDirectory() {
   const [form, setForm] = useState(EMPTY_FORM)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState(null)
+  const [actionError, setActionError] = useState(null)
 
   const load = async () => {
     const { data } = await supabase
@@ -58,18 +59,22 @@ export default function EmployeeDirectory() {
       active: form.active,
     }
 
-    const { error: err } = editing
-      ? await supabase.from('employees').update(payload).eq('id', editing)
-      : await supabase.from('employees').insert(payload)
+    const { data, error: err } = editing
+      ? await supabase.from('employees').update(payload).eq('id', editing).select()
+      : await supabase.from('employees').insert(payload).select()
 
     setSaving(false)
     if (err) { setError('Something went wrong. Please try again.'); return }
+    if (!data || data.length === 0) { setError('The database rejected this change (check the employees table policies in Supabase).'); return }
     closeForm()
     load()
   }
 
-  const toggleActive = async (emp) => {
-    await supabase.from('employees').update({ active: !emp.active }).eq('id', emp.id)
+  const handleDelete = async (emp) => {
+    if (!window.confirm(`Permanently delete ${emp.full_name}? This cannot be undone.`)) return
+    setActionError(null)
+    const { error: err } = await supabase.from('employees').delete().eq('id', emp.id)
+    if (err) { setActionError(`Couldn't delete ${emp.full_name}: ${err.message}`); return }
     load()
   }
 
@@ -96,6 +101,13 @@ export default function EmployeeDirectory() {
           + Add Employee
         </button>
       </div>
+
+      {actionError && (
+        <div className="mb-4 px-4 py-3 rounded-lg text-sm font-medium bg-red-50 text-red-700 flex items-center justify-between">
+          {actionError}
+          <button onClick={() => setActionError(null)} className="ml-4 text-red-400 hover:text-red-600">✕</button>
+        </div>
+      )}
 
       {/* Modal */}
       {showForm && (
@@ -204,7 +216,7 @@ export default function EmployeeDirectory() {
         employees={active}
         emptyMessage="No active employees."
         onEdit={openEdit}
-        onToggle={toggleActive}
+        onDelete={handleDelete}
         teal={TEAL}
       />
 
@@ -215,7 +227,7 @@ export default function EmployeeDirectory() {
           <EmployeeTable
             employees={inactive}
             onEdit={openEdit}
-            onToggle={toggleActive}
+            onDelete={handleDelete}
             teal={TEAL}
             dimmed
           />
@@ -225,7 +237,7 @@ export default function EmployeeDirectory() {
   )
 }
 
-function EmployeeTable({ employees, emptyMessage, onEdit, onToggle, teal, dimmed }) {
+function EmployeeTable({ employees, emptyMessage, onEdit, onDelete, teal, dimmed }) {
   if (employees.length === 0 && emptyMessage) {
     return <p className="text-sm text-gray-400 py-4">{emptyMessage}</p>
   }
@@ -256,14 +268,10 @@ function EmployeeTable({ employees, emptyMessage, onEdit, onToggle, teal, dimmed
                     Edit
                   </button>
                   <button
-                    onClick={() => onToggle(emp)}
-                    className="text-xs px-3 py-1.5 rounded-lg border transition-colors"
-                    style={emp.active
-                      ? { borderColor: '#fca5a5', color: '#ef4444' }
-                      : { borderColor: `${teal}50`, color: teal }
-                    }
+                    onClick={() => onDelete(emp)}
+                    className="text-xs px-3 py-1.5 rounded-lg border border-red-200 text-red-500 hover:bg-red-50 transition-colors"
                   >
-                    {emp.active ? 'Deactivate' : 'Reactivate'}
+                    Delete
                   </button>
                 </div>
               </td>

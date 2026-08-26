@@ -39,6 +39,11 @@ class MockQueryBuilder {
     return this
   }
 
+  delete() {
+    this._operation = 'delete'
+    return this
+  }
+
   eq(field, value) {
     this._filters.push({ type: 'eq', field, value })
     return this
@@ -51,6 +56,16 @@ class MockQueryBuilder {
 
   ilike(field, pattern) {
     this._filters.push({ type: 'ilike', field, pattern })
+    return this
+  }
+
+  gte(field, value) {
+    this._filters.push({ type: 'gte', field, value })
+    return this
+  }
+
+  lte(field, value) {
+    this._filters.push({ type: 'lte', field, value })
     return this
   }
 
@@ -86,6 +101,14 @@ class MockQueryBuilder {
       }
       table.push(newRow)
       return { data: newRow, error: null }
+    }
+
+    if (this._operation === 'delete') {
+      const removed = table.filter(r => this._matches(r))
+      const remaining = table.filter(r => !this._matches(r))
+      table.length = 0
+      table.push(...remaining)
+      return { data: removed, error: null }
     }
 
     if (this._operation === 'update') {
@@ -132,6 +155,12 @@ class MockQueryBuilder {
           } else {
             if (row[f.field] !== f.value) return false
           }
+          break
+        case 'gte':
+          if (row[f.field] < f.value) return false
+          break
+        case 'lte':
+          if (row[f.field] > f.value) return false
           break
         case 'ilike': {
           // Convert SQL % wildcards to regex .*
