@@ -1,10 +1,9 @@
-import { useState, useRef } from 'react'
+import { useState } from 'react'
 import { format } from 'date-fns'
 import { supabase } from '../lib/supabase'
 import EmployeeSearch from './EmployeeSearch'
 import SignaturePad from './SignaturePad'
 import OddballLogo from './OddballLogo'
-import VirtualKeyboard from './VirtualKeyboard'
 import { TEAL } from '../lib/theme'
 
 function Field({ label, required, error, children }) {
@@ -25,31 +24,10 @@ export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState(null)
   const [showErrors, setShowErrors] = useState(false)
-  const [activeField, setActiveField] = useState(null)
-
-  const nameRef = useRef(null)
-  const companyRef = useRef(null)
-  const reasonRef = useRef(null)
-
-  const fieldOrder = ['visitor_name', 'visitor_company', 'reason_for_visit']
-  const fieldRefs = { visitor_name: nameRef, visitor_company: companyRef, reason_for_visit: reasonRef }
-
-  const handleVirtualKey = (key) => {
-    if (!activeField) return
-    if (key === 'ENTER') {
-      const next = fieldOrder[fieldOrder.indexOf(activeField) + 1]
-      if (next) fieldRefs[next].current?.focus()
-      else setActiveField(null)
-      return
-    }
-    const current = form[activeField]
-    if (key === 'BACKSPACE') update(activeField, current.slice(0, -1))
-    else if (key === 'CLEAR') update(activeField, '')
-    else update(activeField, current + key)
-  }
 
   const [form, setForm] = useState({
     host: null,
+    visitor_email: '',
     visitor_name: '',
     visitor_company: '',
     reason_for_visit: '',
@@ -76,6 +54,7 @@ export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
 
     const { error: insertError } = await supabase.from('visitor_log').insert({
       visitor_name: form.visitor_name.trim(),
+      visitor_email: form.visitor_email.trim() || null,
       visitor_company: form.visitor_company.trim(),
       reason_for_visit: form.reason_for_visit.trim(),
       host_employee_id: form.host.id,
@@ -137,49 +116,57 @@ export default function VisitorSignInForm({ clock, onComplete, onCancel }) {
             <div className="col-span-2">
               <Field label="Full Name" required error={showErrors ? fieldErrors.visitor_name : null}>
                 <input
-                  ref={nameRef}
                   type="text"
                   value={form.visitor_name}
                   onChange={e => update('visitor_name', e.target.value)}
                   placeholder="Jane Smith"
                   className={inputClass}
-                  onFocus={e => { focusTeal(e); setActiveField('visitor_name') }}
-                  onBlur={e => { blurClear(e); setActiveField(null) }}
+                  onFocus={focusTeal}
+                  onBlur={blurClear}
                 />
               </Field>
-              {activeField === 'visitor_name' && <VirtualKeyboard onKey={handleVirtualKey} />}
             </div>
 
             <div className="col-span-2">
               <Field label="Company" required error={showErrors ? fieldErrors.visitor_company : null}>
                 <input
-                  ref={companyRef}
                   type="text"
                   value={form.visitor_company}
                   onChange={e => update('visitor_company', e.target.value)}
                   placeholder="Acme Corp"
                   className={inputClass}
-                  onFocus={e => { focusTeal(e); setActiveField('visitor_company') }}
-                  onBlur={e => { blurClear(e); setActiveField(null) }}
+                  onFocus={focusTeal}
+                  onBlur={blurClear}
                 />
               </Field>
-              {activeField === 'visitor_company' && <VirtualKeyboard onKey={handleVirtualKey} />}
+            </div>
+
+            <div className="col-span-2">
+              <Field label="Email">
+                <input
+                  type="email"
+                  value={form.visitor_email}
+                  onChange={e => update('visitor_email', e.target.value)}
+                  placeholder="Enter your email for registration..."
+                  className={inputClass}
+                  onFocus={focusTeal}
+                  onBlur={blurClear}
+                />
+              </Field>
             </div>
 
             <div className="col-span-2">
               <Field label="Reason for Visit" required error={showErrors ? fieldErrors.reason_for_visit : null}>
                 <textarea
-                  ref={reasonRef}
                   value={form.reason_for_visit}
                   onChange={e => update('reason_for_visit', e.target.value)}
                   placeholder="e.g. Sales meeting, Job interview, Delivery, etc."
                   rows={2}
                   className={`${inputClass} resize-none`}
-                  onFocus={e => { focusTeal(e); setActiveField('reason_for_visit') }}
-                  onBlur={e => { blurClear(e); setActiveField(null) }}
+                  onFocus={focusTeal}
+                  onBlur={blurClear}
                 />
               </Field>
-              {activeField === 'reason_for_visit' && <VirtualKeyboard onKey={handleVirtualKey} />}
             </div>
 
             <div className="col-span-2">
