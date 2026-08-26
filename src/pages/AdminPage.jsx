@@ -38,6 +38,7 @@ export default function AdminPage() {
   const [tab, setTab] = useState(TAB.ACTIVE)
   const [history, setHistory] = useState([])
   const [historyDate, setHistoryDate] = useState(format(new Date(), 'yyyy-MM-dd'))
+  const [showAllDates, setShowAllDates] = useState(false)
   const [loadingHistory, setLoadingHistory] = useState(false)
   const [signingOutAll, setSigningOutAll] = useState(false)
   const [signOutAllResult, setSignOutAllResult] = useState(null)
@@ -114,16 +115,13 @@ export default function AdminPage() {
   useEffect(() => {
     if (tab !== TAB.HISTORY) return
     setLoadingHistory(true)
-    supabase
-      .from('visitor_log')
-      .select('*')
-      .eq('visit_date', historyDate)
-      .order('time_in', { ascending: false })
-      .then(({ data }) => {
-        setHistory(data || [])
-        setLoadingHistory(false)
-      })
-  }, [tab, historyDate])
+    let query = supabase.from('visitor_log').select('*').order('time_in', { ascending: false })
+    if (!showAllDates) query = query.eq('visit_date', historyDate)
+    query.then(({ data }) => {
+      setHistory(data || [])
+      setLoadingHistory(false)
+    })
+  }, [tab, historyDate, showAllDates])
 
   const handleLogout = () => {
     sessionStorage.removeItem('admin_auth')
@@ -199,16 +197,28 @@ export default function AdminPage() {
         {tab === TAB.HISTORY && (
           <div>
             <div className="flex items-center justify-between mb-5">
-              <div className="flex items-center gap-3">
-                <label className="text-sm font-medium text-gray-600">Date</label>
-                <input
-                  type="date"
-                  value={historyDate}
-                  onChange={e => setHistoryDate(e.target.value)}
-                  className="border-2 border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none transition-colors"
-                  onFocus={e => e.target.style.borderColor = TEAL}
-                  onBlur={e => e.target.style.borderColor = '#e5e7eb'}
-                />
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-medium text-gray-600">Date</label>
+                  <input
+                    type="date"
+                    value={historyDate}
+                    onChange={e => setHistoryDate(e.target.value)}
+                    disabled={showAllDates}
+                    className="border-2 border-gray-200 rounded-lg px-3 py-1.5 text-sm focus:outline-none transition-colors disabled:opacity-40"
+                    onFocus={e => e.target.style.borderColor = TEAL}
+                    onBlur={e => e.target.style.borderColor = '#e5e7eb'}
+                  />
+                </div>
+                <label className="flex items-center gap-2 text-sm font-medium text-gray-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={showAllDates}
+                    onChange={e => setShowAllDates(e.target.checked)}
+                    className="w-4 h-4 rounded"
+                  />
+                  All dates
+                </label>
               </div>
               <div className="relative" ref={exportRef}>
                 <button
@@ -291,7 +301,7 @@ export default function AdminPage() {
             ) : history.length === 0 ? (
               <div className="text-center py-16 text-gray-400">
                 <p className="text-lg font-medium">No visits recorded</p>
-                <p className="text-sm">for {format(parseISO(historyDate), 'MMMM d, yyyy')}</p>
+                <p className="text-sm">{showAllDates ? 'across any date' : `for ${format(parseISO(historyDate), 'MMMM d, yyyy')}`}</p>
               </div>
             ) : (
               <div className="bg-white border border-gray-200 rounded-xl overflow-hidden shadow-sm">
@@ -299,6 +309,7 @@ export default function AdminPage() {
                   <thead className="border-b border-gray-200">
                     <tr style={{ backgroundColor: `${TEAL}12` }}>
                       <th className="text-left px-4 py-3 font-semibold text-gray-700">Visitor</th>
+                      {showAllDates && <th className="text-left px-4 py-3 font-semibold text-gray-700">Date</th>}
                       <th className="text-left px-4 py-3 font-semibold text-gray-700">Company</th>
                       <th className="text-left px-4 py-3 font-semibold text-gray-700">Visiting</th>
                       <th className="text-left px-4 py-3 font-semibold text-gray-700">In</th>
@@ -313,6 +324,9 @@ export default function AdminPage() {
                           <p className="font-medium text-gray-900">{vis.visitor_name}</p>
                           {vis.visitor_title && <p className="text-xs text-gray-400">{vis.visitor_title}</p>}
                         </td>
+                        {showAllDates && (
+                          <td className="px-4 py-3 text-gray-600">{format(parseISO(vis.visit_date), 'MMM d, yyyy')}</td>
+                        )}
                         <td className="px-4 py-3 text-gray-600">{vis.visitor_company}</td>
                         <td className="px-4 py-3 text-gray-600">{vis.host_employee_name}</td>
                         <td className="px-4 py-3 text-gray-600">{format(parseISO(vis.time_in), 'h:mm a')}</td>

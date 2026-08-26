@@ -36,6 +36,7 @@ CREATE TABLE IF NOT EXISTS visitor_log (
   -- Visitor details (entered at kiosk)
   visitor_name        TEXT NOT NULL,
   visitor_title       TEXT,
+  visitor_email       TEXT,
   visitor_company     TEXT NOT NULL,
   reason_for_visit    TEXT NOT NULL,
 
@@ -58,6 +59,9 @@ CREATE TABLE IF NOT EXISTS visitor_log (
   created_at          TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- For databases created before visitor_email existed
+ALTER TABLE visitor_log ADD COLUMN IF NOT EXISTS visitor_email TEXT;
+
 CREATE INDEX IF NOT EXISTS idx_visitor_log_visit_date
   ON visitor_log (visit_date);
 
@@ -73,10 +77,26 @@ CREATE INDEX IF NOT EXISTS idx_visitor_log_active
 ALTER TABLE employees   ENABLE ROW LEVEL SECURITY;
 ALTER TABLE visitor_log ENABLE ROW LEVEL SECURITY;
 
--- Employees: anyone can read active employees (kiosk search)
-CREATE POLICY "Public read active employees"
+-- Employees: anyone can read (kiosk search needs active ones; admin dashboard
+-- needs inactive ones too to render the "Inactive" list)
+DROP POLICY IF EXISTS "Public read active employees" ON employees;
+CREATE POLICY "Public read employees"
   ON employees FOR SELECT
-  USING (active = TRUE);
+  USING (TRUE);
+
+-- Employees: admin dashboard can add/edit/deactivate/delete
+-- (trust boundary is the PIN-gated /admin route, same as visitor_log below)
+CREATE POLICY "Public insert employees"
+  ON employees FOR INSERT
+  WITH CHECK (TRUE);
+
+CREATE POLICY "Public update employees"
+  ON employees FOR UPDATE
+  USING (TRUE);
+
+CREATE POLICY "Public delete employees"
+  ON employees FOR DELETE
+  USING (TRUE);
 
 -- Visitor log: anyone can insert (kiosk sign-in)
 CREATE POLICY "Public insert visitor log"
